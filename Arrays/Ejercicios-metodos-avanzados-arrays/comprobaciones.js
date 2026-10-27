@@ -1,0 +1,11 @@
+const ventas = [120, 80, 45, 200, 30, 150];
+const ventasConIVA = ventas.map((venta) => venta * 1.21);
+const ventasAltas = ventas.filter((venta) => venta >= 100);
+const totalVentas = ventas.reduce((acumulador, venta) => acumulador + venta, 0);
+const mediaVentas = totalVentas / ventas.length;
+const primerasTresVentas = ventas.slice(0, 3);
+console.log("Ventas con IVA: " + ventasConIVA);
+console.log("Ventas altas: " + ventasAltas);
+console.log("Total de ventas: " + totalVentas);
+console.log("Media de ventas: " + mediaVentas);
+console.log("Primeras tres ventas: " + primerasTresVentas);
