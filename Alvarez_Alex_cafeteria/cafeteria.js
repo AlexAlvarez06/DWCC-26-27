@@ -22,6 +22,56 @@ const CANTIDAD_MAXIMA = 10; // unidades máximas por línea de pedido
 const pedidoCodigos = []; // posición del producto en PRODUCTOS
 const pedidoCantidades = []; // unidades pedidas de ese producto
 
+function quitarUltimo() {
+  if (pedidoCodigos.length === 0) {
+    console.log("No hay ningun pedido hecho");
+  } else {
+    console.log(
+      "Quitado: " +
+        pedidoCantidades.pop() +
+        " x " +
+        PRODUCTOS[pedidoCodigos.pop()],
+    );
+  }
+}
+
+function mostrarPedido() {
+  let pedido = "";
+  if (pedidoCodigos.length === 0) {
+    console.log("Pedido vacio");
+    return;
+  } else {
+    for (let i = 0; i < pedidoCodigos.length; i++) {
+      pedido +=
+        pedidoCantidades[i] +
+        " x " +
+        PRODUCTOS[pedidoCodigos[i]] +
+        " = " +
+        formatearEuros(
+          calcularImporteLinea(PRECIOS[pedidoCodigos[i]], pedidoCantidades[i]),
+        ) +
+        "\n";
+    }
+    pedido += "Subtotal: " + formatearEuros(calcularSubtotal());
+  }
+  console.log(pedido);
+}
+
+function calcularSubtotal() {
+  let suma = 0;
+  for (let i = 0; i < pedidoCodigos.length; i++) {
+    suma += calcularImporteLinea(
+      PRECIOS[pedidoCodigos[i]],
+      pedidoCantidades[i],
+    );
+  }
+  return redondear2(suma);
+}
+
+function calcularImporteLinea(precio, cantidad) {
+  return redondear2(precio * cantidad);
+}
+
 function añadirProducto() {
   const numeroProducto = leerEntero(
     "Escoja el producto a añadir:" + "\n" + mostrarCarta(),
@@ -154,8 +204,7 @@ function iniciarCafeteria() {
         break;
 
       case 3:
-        console.log("pendiente");
-
+        mostrarPedido();
         break;
 
       case 4:
