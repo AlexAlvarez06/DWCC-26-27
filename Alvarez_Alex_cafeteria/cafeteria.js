@@ -22,16 +22,23 @@ const CANTIDAD_MAXIMA = 10; // unidades máximas por línea de pedido
 const pedidoCodigos = []; // posición del producto en PRODUCTOS
 const pedidoCantidades = []; // unidades pedidas de ese producto
 
+/**
+ * Cobra el pedido: pregunta si es alumno, calcula descuento, total e IVA,
+ * pide el importe entregado y muestra el ticket en la consola.
+ * @returns {boolean} true si se ha pagado, false si el pedido está vacío o se cancela
+ */
 function pagar() {
   if (pedidoCodigos.length === 0) {
-    alert("La cesta esta vacia");
+    alert("La cesta está vacía");
     return false;
   }
+
+  // Preguntar si es alumno hasta que responda s o n
   let esAlumno = false;
   let respuesta;
   let valido = false;
   do {
-    respuesta = prompt("Eres alumno? s/n");
+    respuesta = prompt("¿Eres alumno? s/n");
     if (respuesta === null) {
       return false;
     }
@@ -45,15 +52,18 @@ function pagar() {
   if (respuesta === "s") {
     esAlumno = true;
   }
+
+  // Cálculos (los precios ya incluyen el IVA)
   const subtotal = calcularSubtotal();
   const descuento = calcularDescuento(subtotal, esAlumno);
   const total = redondear2(subtotal - descuento);
   const base = calcularBaseImponible(total);
   const cuotaIva = redondear2(total - base);
 
+  // Pedir el importe entregado (admite coma y no puede ser menor que el total)
   let textoPago = "";
   let pago = 0;
-  valido = false;
+  valido = false; // se reinicia porque ya valía true del bucle anterior
   do {
     textoPago = prompt("Introduzca el importe entregado");
     if (textoPago === null) {
@@ -65,13 +75,14 @@ function pagar() {
     } else if (isNaN(pago)) {
       alert("Tienes que escribir una cifra");
     } else if (pago < total) {
-      alert("no llega");
+      alert("El importe no llega al total");
     } else {
       valido = true;
     }
   } while (!valido);
   const cambio = redondear2(pago - total);
 
+  // Ticket
   console.log("==============================");
   console.log("  CAFETERÍA CIFP – TICKET");
   console.log(
@@ -81,7 +92,7 @@ function pagar() {
       new Date().toLocaleTimeString("es-ES"),
   );
   console.log("------------------------------");
-  mostrarPedido();
+  mostrarPedido(); // líneas del pedido y subtotal
   if (esAlumno) {
     console.log("Descuento alumnado: " + formatearEuros(-descuento));
   }
@@ -98,49 +109,68 @@ function pagar() {
   return true;
 }
 
+/**
+ * Calcula la base imponible (el importe sin IVA) a partir del total con IVA
+ * @param {number} totalConIva - Total del pedido con el IVA incluido
+ * @returns {number} Base imponible redondeada a dos decimales
+ */
 function calcularBaseImponible(totalConIva) {
   return redondear2(totalConIva / (1 + IVA));
 }
 
+/**
+ * Calcula el descuento del alumnado con el operador ternario
+ * @param {number} subtotal - Suma de todas las líneas del pedido
+ * @param {boolean} esAlumno - true si el cliente es alumno
+ * @returns {number} El descuento redondeado, o 0 si no es alumno
+ */
 function calcularDescuento(subtotal, esAlumno) {
   return esAlumno ? redondear2(subtotal * DESCUENTO_ALUMNADO) : 0;
 }
 
+/**
+ * Quita la última línea del pedido (de los dos arrays) y muestra qué se ha quitado
+ */
 function quitarUltimo() {
   if (pedidoCodigos.length === 0) {
-    console.log("No hay ningun pedido hecho");
+    console.log("No hay nada que quitar, el pedido está vacío");
   } else {
+    const cantidadQuitada = pedidoCantidades.pop();
+    const codigoQuitado = pedidoCodigos.pop();
     console.log(
-      "Quitado: " +
-        pedidoCantidades.pop() +
-        " x " +
-        PRODUCTOS[pedidoCodigos.pop()],
+      "Quitado: " + cantidadQuitada + " x " + PRODUCTOS[codigoQuitado],
     );
   }
 }
 
+/**
+ * Muestra en la consola cada línea del pedido con su importe y el subtotal
+ */
 function mostrarPedido() {
   let pedido = "";
   if (pedidoCodigos.length === 0) {
-    console.log("Pedido vacio");
+    console.log("El pedido está vacío");
     return;
-  } else {
-    for (let i = 0; i < pedidoCodigos.length; i++) {
-      pedido +=
-        pedidoCantidades[i] +
-        " x " +
-        PRODUCTOS[pedidoCodigos[i]] +
-        " = " +
-        formatearEuros(
-          calcularImporteLinea(PRECIOS[pedidoCodigos[i]], pedidoCantidades[i]),
-        ) +
-        "\n";
-    }
-    pedido += "Subtotal: " + formatearEuros(calcularSubtotal());
   }
+  for (let i = 0; i < pedidoCodigos.length; i++) {
+    pedido +=
+      pedidoCantidades[i] +
+      " x " +
+      PRODUCTOS[pedidoCodigos[i]] +
+      " = " +
+      formatearEuros(
+        calcularImporteLinea(PRECIOS[pedidoCodigos[i]], pedidoCantidades[i]),
+      ) +
+      "\n";
+  }
+  pedido += "Subtotal: " + formatearEuros(calcularSubtotal());
   console.log(pedido);
 }
 
+/**
+ * Recorre el pedido y suma el importe de todas las líneas
+ * @returns {number} Subtotal redondeado a dos decimales
+ */
 function calcularSubtotal() {
   let suma = 0;
   for (let i = 0; i < pedidoCodigos.length; i++) {
@@ -152,10 +182,20 @@ function calcularSubtotal() {
   return redondear2(suma);
 }
 
+/**
+ * Calcula el importe de una línea del pedido
+ * @param {number} precio - Precio de una unidad del producto
+ * @param {number} cantidad - Unidades pedidas
+ * @returns {number} precio × cantidad, redondeado a dos decimales
+ */
 function calcularImporteLinea(precio, cantidad) {
   return redondear2(precio * cantidad);
 }
 
+/**
+ * Pide el número de producto y la cantidad, y los añade al pedido.
+ * Si el usuario cancela en cualquier momento, no añade nada.
+ */
 function añadirProducto() {
   const numeroProducto = leerEntero(
     "Escoja el producto a añadir:" + "\n" + mostrarCarta(),
@@ -168,7 +208,7 @@ function añadirProducto() {
   }
 
   const cantidadProducto = leerEntero(
-    "Cantidad del producto que quiere comprar:",
+    "Cantidad del producto que quiere comprar (1 a " + CANTIDAD_MAXIMA + "):",
     1,
     CANTIDAD_MAXIMA,
   );
@@ -177,6 +217,7 @@ function añadirProducto() {
     return;
   }
 
+  // El usuario ve los productos del 1 al 8, pero en el array van del 0 al 7
   pedidoCodigos.push(numeroProducto - 1);
   pedidoCantidades.push(cantidadProducto);
   console.log(
@@ -185,8 +226,8 @@ function añadirProducto() {
 }
 
 /**
- * Recorre los precios y los productos y devuelve la carta con estos
- * @returns {string} devuelve la carta con productos y precios
+ * Recorre los productos y los precios y devuelve la carta numerada
+ * @returns {string} La carta con productos y precios
  */
 function mostrarCarta() {
   let carta = "";
@@ -198,31 +239,31 @@ function mostrarCarta() {
 }
 
 /**
- * Redondea un numero a dos decimales
- * @param {number} numero - Numero a redondear
- * @returns {number} Numero redondeado
+ * Redondea un número a dos decimales
+ * @param {number} numero - Número a redondear
+ * @returns {number} Número redondeado
  */
 function redondear2(numero) {
   return Math.round(numero * 100) / 100;
 }
 
 /**
- * Da formato de euros a un numero
- * @param {number} numero - Numero para darle formato a €
- * @returns {string} El numero redondeado a dos decimales con el simbolo del euro al final
+ * Da formato de euros a un número
+ * @param {number} numero - Número al que dar formato
+ * @returns {string} El número con dos decimales y el símbolo del euro al final
  */
 function formatearEuros(numero) {
   return numero.toFixed(2) + " €";
 }
 
 /**
- * Saluda en funcion de que hora del dia es
- * @returns {string} el saludo dependiendo de la hora
+ * Saluda en función de la hora del día
+ * @returns {string} El saludo según la hora
  */
 function saludoSegunHora() {
   const hora = new Date().getHours();
   if (hora < 12) {
-    return "Buenos dias";
+    return "Buenos días";
   } else if (hora < 20) {
     return "Buenas tardes";
   } else {
@@ -231,11 +272,11 @@ function saludoSegunHora() {
 }
 
 /**
- * muestra un mensaje pide un numero y comprueba la validez del numero y que este en el rango de min max y lo devuelve
- * @param {string} mensaje - el mensaje que ira en el prompt para el usuario
- * @param {number} min - rango minimo del numero que puede introducir el usuario
- * @param {number} max - rango maximo del numero que puede introducir el usuario
- * @returns {number|null} el numero valido o nullsi el usuario cancela
+ * Pide un número entero con prompt y repite hasta que sea válido y esté entre min y max
+ * @param {string} mensaje - El mensaje que aparece en el prompt
+ * @param {number} min - Valor mínimo permitido
+ * @param {number} max - Valor máximo permitido
+ * @returns {number|null} El número válido, o null si el usuario cancela
  */
 function leerEntero(mensaje, min, max) {
   let texto;
@@ -243,18 +284,20 @@ function leerEntero(mensaje, min, max) {
   let valido = false;
   do {
     texto = prompt(mensaje);
+    // Primero null: si cancela, texto.trim() daría error
     if (texto === null) {
       return null;
     }
     numero = Number(texto);
+    // Number("") vale 0, por eso se comprueba el texto vacío antes
     if (texto.trim() === "") {
       alert("No has escrito nada");
     } else if (isNaN(numero)) {
-      alert("Tienes que escribir un numero");
+      alert("Tienes que escribir un número");
     } else if (!Number.isInteger(numero)) {
-      alert("Tienes que escribir un numero entero");
+      alert("Tienes que escribir un número entero");
     } else if (numero < min || numero > max) {
-      alert("Numero introducido fuera de rango");
+      alert("Número fuera de rango");
     } else {
       valido = true;
     }
@@ -273,6 +316,7 @@ function iniciarCafeteria() {
     "MENÚ PRINCIPAL\n1. Ver carta\n2. Añadir producto\n3. Ver pedido\n4. Quitar último producto\n5. Pagar\n0. Salir";
   do {
     opcion = leerEntero(mensajeMenu, 0, 5);
+    // Cancelar el menú es lo mismo que salir
     if (opcion === null) {
       opcion = 0;
     }
@@ -292,17 +336,17 @@ function iniciarCafeteria() {
 
       case 4:
         quitarUltimo();
-
         break;
 
       case 5:
-        pagar();
-
+        // Si se ha pagado, el programa termina
+        if (pagar()) {
+          opcion = 0;
+        }
         break;
 
       case 0:
         console.log("Hasta pronto");
-
         break;
     }
   } while (opcion !== 0);
