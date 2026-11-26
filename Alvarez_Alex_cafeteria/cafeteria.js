@@ -22,6 +22,90 @@ const CANTIDAD_MAXIMA = 10; // unidades máximas por línea de pedido
 const pedidoCodigos = []; // posición del producto en PRODUCTOS
 const pedidoCantidades = []; // unidades pedidas de ese producto
 
+function pagar() {
+  if (pedidoCodigos.length === 0) {
+    alert("La cesta esta vacia");
+    return false;
+  }
+  let esAlumno = false;
+  let respuesta;
+  let valido = false;
+  do {
+    respuesta = prompt("Eres alumno? s/n");
+    if (respuesta === null) {
+      return false;
+    }
+    respuesta = respuesta.toLowerCase().trim();
+    if (respuesta !== "s" && respuesta !== "n") {
+      alert("Introduce s o n");
+    } else {
+      valido = true;
+    }
+  } while (!valido);
+  if (respuesta === "s") {
+    esAlumno = true;
+  }
+  const subtotal = calcularSubtotal();
+  const descuento = calcularDescuento(subtotal, esAlumno);
+  const total = redondear2(subtotal - descuento);
+  const base = calcularBaseImponible(total);
+  const cuotaIva = redondear2(total - base);
+
+  let textoPago = "";
+  let pago = 0;
+  valido = false;
+  do {
+    textoPago = prompt("Introduzca el importe entregado");
+    if (textoPago === null) {
+      return false;
+    }
+    pago = Number(textoPago.replace(",", "."));
+    if (textoPago.trim() === "") {
+      alert("No has escrito nada");
+    } else if (isNaN(pago)) {
+      alert("Tienes que escribir una cifra");
+    } else if (pago < total) {
+      alert("no llega");
+    } else {
+      valido = true;
+    }
+  } while (!valido);
+  const cambio = redondear2(pago - total);
+
+  console.log("==============================");
+  console.log("  CAFETERÍA CIFP – TICKET");
+  console.log(
+    "  " +
+      new Date().toLocaleDateString("es-ES") +
+      "  " +
+      new Date().toLocaleTimeString("es-ES"),
+  );
+  console.log("------------------------------");
+  mostrarPedido();
+  if (esAlumno) {
+    console.log("Descuento alumnado: " + formatearEuros(-descuento));
+  }
+  console.log("TOTAL (IVA incluido): " + formatearEuros(total));
+  console.log("  Base imponible: " + formatearEuros(base));
+  console.log("  IVA (10 %): " + formatearEuros(cuotaIva));
+  console.log(
+    "Entregado: " +
+      formatearEuros(pago) +
+      " | Cambio: " +
+      formatearEuros(cambio),
+  );
+  console.log("==============================");
+  return true;
+}
+
+function calcularBaseImponible(totalConIva) {
+  return redondear2(totalConIva / (1 + IVA));
+}
+
+function calcularDescuento(subtotal, esAlumno) {
+  return esAlumno ? redondear2(subtotal * DESCUENTO_ALUMNADO) : 0;
+}
+
 function quitarUltimo() {
   if (pedidoCodigos.length === 0) {
     console.log("No hay ningun pedido hecho");
@@ -119,8 +203,7 @@ function mostrarCarta() {
  * @returns {number} Numero redondeado
  */
 function redondear2(numero) {
-  numero = numero.toFixed(2);
-  return Number(numero);
+  return Math.round(numero * 100) / 100;
 }
 
 /**
@@ -196,7 +279,7 @@ function iniciarCafeteria() {
 
     switch (opcion) {
       case 1:
-        alert(mostrarCarta());
+        console.log(mostrarCarta());
         break;
 
       case 2:
@@ -208,12 +291,12 @@ function iniciarCafeteria() {
         break;
 
       case 4:
-        console.log("pendiente");
+        quitarUltimo();
 
         break;
 
       case 5:
-        console.log("pendiente");
+        pagar();
 
         break;
 
