@@ -352,3 +352,109 @@ function iniciarCafeteria() {
   } while (opcion !== 0);
 }
 iniciarCafeteria();
+
+/*
+ * =====================================================================
+ * AUTOEVALUACIÓN
+ * =====================================================================
+ *
+ * A. Proyecto y entorno
+ *   A1. cafeteria.js enlazado desde index.html ......................... Sí
+ *   A2. Sin errores en rojo en la consola en ningún caso de prueba ..... Sí
+ *   A3. Cabecera con nombre, fecha y qué hace el programa .............. Sí
+ *
+ * B. Variables, constantes y tipos
+ *   B1. No uso var en ningún sitio ...................................... Sí
+ *   B2. const para lo que no se reasigna, let solo cuando reasigno ...... Sí
+ *       (los arrays del pedido son const porque solo cambia su contenido
+ *       con push y pop)
+ *   B3. Nombres descriptivos ............................................ Sí
+ *   B4. Convierto con Number() lo que devuelve prompt ................... Sí
+ *   B5. Sé explicar por qué Number("") da 0 y no NaN .................... Sí
+ *       (Number convierte el texto vacío en 0, por eso compruebo
+ *       texto.trim() === "" antes de mirar si es NaN)
+ *
+ * C. Entrada de datos y validación
+ *   C1. Compruebo null antes de usar el texto ........................... Sí
+ *   C2. Detecto el texto vacío .......................................... Sí
+ *   C3. Detecto valores no numéricos (NaN) .............................. Sí
+ *   C4. Detecto números fuera de rango .................................. Sí
+ *   C5. Rechazo decimales cuando pido un entero ......................... Sí
+ *   C6. Acepto importes con coma ........................................ Sí
+ *   C7. La respuesta s/n funciona con mayúsculas y espacios ............. Sí
+ *
+ * D. Estructuras de control
+ *   D1. El menú se repite con do...while hasta pagar o salir ............ Sí
+ *   D2. switch con break en cada case ................................... Sí
+ *   D3. if / else if / else en el saludo y en las validaciones .......... Sí
+ *   D4. Operador ternario en el descuento ............................... Sí
+ *   D5. Uso operadores lógicos con sentido .............................. Sí
+ *       (&& en la respuesta s/n, || en el rango de leerEntero,
+ *       ! en !valido)
+ *   D6. Uso siempre === y !== ........................................... Sí
+ *   D7. No hay bucles infinitos: se puede cancelar en todos los prompt .. Sí
+ *
+ * E. Funciones
+ *   E1. Están todas las funciones mínimas del R3 ........................ Sí
+ *   E2. Cada función hace una sola tarea ........................... A medias
+ *       (pagar() pregunta, calcula, cobra y muestra el ticket; se podría
+ *       separar el ticket en una función mostrarTicket)
+ *   E3. Las funciones de cálculo devuelven el resultado con return ...... Sí
+ *   E4. He probado funciones sueltas en la consola ...................... Sí
+ *       (redondear2(1.10 * 3) -> 3.3)
+ *   E5. No repito el mismo bloque de código ............................. Sí
+ *       (el ticket reutiliza mostrarPedido() y el subtotal usa
+ *       calcularImporteLinea())
+ *
+ * F. Arrays
+ *   F1. Relaciono bien los arrays paralelos ............................. Sí
+ *   F2. Convierto bien el número del usuario (1-8) en índice (0-7) ...... Sí
+ *   F3. Uso length en los bucles, sin tamaños fijos ..................... Sí
+ *   F4. push añade a los dos arrays y pop quita de los dos .............. Sí
+ *
+ * G. Objetos predefinidos y cálculos
+ *   G1. El saludo cambia según la hora (Date) ........................... Sí
+ *   G2. El ticket muestra la fecha y la hora ............................ Sí
+ *   G3. Redondeo con Math.round y muestro con toFixed(2) ................ Sí
+ *   G4. No sigo calculando con el resultado de toFixed .................. Sí
+ *       (toFixed solo se usa dentro de formatearEuros)
+ *   G5. Base + IVA suma el total ........................................ Sí
+ *   G6. El cambio es correcto y no se acepta un pago insuficiente ....... Sí
+ *
+ * H. Calidad y pruebas
+ *   H1. Código bien sangrado y fácil de leer ............................ Sí
+ *   H2. Cada función tiene comentario de cabecera ....................... Sí
+ *   H3. He ejecutado todos los casos P1-P16 ............................. Sí
+ *       (todos correctos)
+ *   H4. Mensajes claros y sin faltas de ortografía ...................... Sí
+ *
+ * ---------------------------------------------------------------------
+ * REFLEXIÓN FINAL
+ * ---------------------------------------------------------------------
+ *
+ * 1. ¿Qué parte te ha costado más y cómo la resolviste?
+ *    La opción de pagar, sobre todo los bucles de validación. Al principio
+ *    usaba || en lugar de && en la respuesta s/n y siempre salía el aviso.
+ *    También se me olvidaba volver a poner valido a false antes del segundo
+ *    bucle. Lo resolví repasando la condición paso a paso con un ejemplo.
+ *
+ * 2. ¿Qué error has tenido más veces en la consola? ¿Qué significaba?
+ *    "... is not defined" y "Cannot access 'total' before initialization".
+ *    El primero salía por usar una variable que no existía en esa función
+ *    (había copiado nombres de otra). El segundo, por usar una const antes
+ *    de la línea donde se crea.
+ *
+ * 3. ¿Cómo explicarías la diferencia entre "", null y NaN?
+ *    "" es lo que devuelve prompt si pulsas Aceptar sin escribir: un texto
+ *    vacío. null es lo que devuelve si pulsas Cancelar: no hay texto, y si
+ *    haces .trim() falla. NaN es lo que da Number() cuando el texto no es un
+ *    número, como "abc" o "2,50". Por eso se comprueba primero null, después
+ *    el vacío y después NaN.
+ *
+ * 4. ¿Qué contenido de la UD1 necesitas repasar más?
+ *    Los operadores lógicos dentro de las condiciones y el orden en que hay
+ *    que declarar las variables.
+ *
+ * 5. ¿Has hecho algún reto de ampliación? ¿Cuál?
+ *    No.
+ */
